@@ -61,7 +61,7 @@ def create_blog(blog_data: CreateBlogRequest):
 @app.get("/blogs/")
 def read_blogs():
     db = SessionLocal()
-    return db.query(Blog).all()
+    return  db.query(Blog).all()
 
 class UpdateBlogRequest(BaseModel):
     blog_id:int
@@ -79,7 +79,7 @@ def update_blog(blog_data:UpdateBlogRequest):
     blog.body = blog_data.body
     db.commit()
     db.refresh(blog)
-    return blog
+    return {"blog_id":blog.id,"title":blog.title,"body":blog.title}
 
 
 @app.delete("/blogs/{blog_id}")

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import Modal from './Modal';
 import classes from "./PostDetails.module.css"
 
-const PostDetails = ({ post, onClose}) => {
+const PostDetails = ({ post, onClose,onDelete,onSave}) => {
   const [editedTitle, setEditedTitle] = useState(post.title);
   const [editedBody, setEditedBody] = useState(post.body);
   const [isEditing, setIsEditing] = useState(false);
@@ -22,33 +22,13 @@ const PostDetails = ({ post, onClose}) => {
         title: editedTitle,
         body: editedBody
       };
-      fetch(`http://127.0.0.1:8000/blogs/${post.id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(updatedPost),
-      })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Failed to update post');
-        }
-        
-      })
-      .catch(error => {
-        console.error('Error updating post:', error);
-      });
+      onSave(updatedPost)
       onClose()
     };
     
 
     const handleDeleteClick = () => {
-      fetch(`http://127.0.0.1:8000/blogs/${post.id}`, {
-        method: 'DELETE',
-      })
-      .catch(error => {
-        console.error('Error deleting post:', error);
-      });
+      onDelete(post.id)
       onClose()
     };
 

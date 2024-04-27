@@ -11,23 +11,23 @@ const PostList = ({ isPosting, onStopPosting, onPosting }) => {
   const [error, setError] = useState(null);
   const [selectedPost, setSelectedPost] = useState(null); 
 
-  
-  useEffect(() => {
-    async function fetchPosts() {
-      setIsFetching(true);
-      try {
-        const response = await fetch("http://127.0.0.1:8000/blogs");
-        if (response.ok) {
-          const resData = await response.json();
-          setPosts(resData);
-          // console.log(posts)
-          setIsFetching(false);
-        }
-      } catch (error) {
-        setError(error.message);
+  async function fetchPosts() {
+    setIsFetching(true);
+    try {
+      const response = await fetch("http://127.0.0.1:8000/blogs");
+      if (response.ok) {
+        const resData = await response.json();
+        setPosts(resData);
+        // console.log(posts)
         setIsFetching(false);
       }
+    } catch (error) {
+      setError(error.message);
+      setIsFetching(false);
     }
+  }
+  
+  useEffect(() => {
     fetchPosts();
   }, []);
 
@@ -63,6 +63,36 @@ const PostList = ({ isPosting, onStopPosting, onPosting }) => {
     onStopPosting();
   }
 
+  function onSave(updatedPost){
+    fetch(`http://127.0.0.1:8000/blogs/${updatedPost.blog_id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(updatedPost),
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Failed to update post');
+      }
+      console.log(response.body)
+    })
+    .catch(error => {
+      console.error('Error updating post:', error);
+    });
+    fetchPosts();
+  }
+
+  function onDelete(id){
+    fetch(`http://127.0.0.1:8000/blogs/${id}`, {
+        method: 'DELETE',
+      })
+      .catch(error => {
+        console.error('Error deleting post:', error);
+      });
+    fetchPosts();
+  }
+
   return (
     <div>
       {!selectedPost && !isFetching && isPosting && (
@@ -71,7 +101,7 @@ const PostList = ({ isPosting, onStopPosting, onPosting }) => {
         </Modal>
       )}
       {selectedPost && (
-        <PostDetails post={selectedPost} onClose={handleClosePostDetails}  />
+        <PostDetails post={selectedPost} onClose={handleClosePostDetails} onDelete = {onDelete} onSave={onSave} />
       )}
       {error && (
         <div style={{ textAlign: "center", color: "white" }}>
